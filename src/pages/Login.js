@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import LoginImage from '../image/usuario.png'; // Importa tu imagen de inicio de sesión
-import RegisterDialog from '../components/RegisterDialog.js'; // Importa el componente del diálogo de registro
+import { TextField, Button, Typography, Container, Box, Alert } from '@mui/material';
+import LoginImage from '../image/usuario.png';
+import RegisterDialog from '../components/RegisterDialog.js';
+import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ setUser }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
-  const [openRegisterDialog, setOpenRegisterDialog] = useState(false); // Estado para controlar la visibilidad del diálogo de registro
+  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
 
   const handleOpenRegisterDialog = () => {
     setOpenRegisterDialog(true);
@@ -29,17 +31,32 @@ function Login() {
       });
       const data = await response.json();
       if (response.ok) {
-        // Inicio de sesión exitoso
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         setError('');
         console.log('Inicio de sesión exitoso:', data);
-        // Aquí puedes redirigir al usuario a otra página o actualizar el estado de autenticación en tu aplicación
+        // Pasar los datos del usuario al Navbar
+        switch (data.user.Rol) {
+          case 'Estudiante':
+            navigate('/estudiante');
+            break;
+          case 'Profesor':
+            navigate('/profesor');
+            break;
+          case 'Administrativo':
+            navigate('/admin');
+            break;
+          default:
+            navigate('/');
+            break;
+        }
+        setUser(data.user);
+
       } else {
-        // Error de inicio de sesión
         setError(data.message);
         console.error('Error de inicio de sesión:', data.message);
       }
     } catch (error) {
-      // Error de red o del servidor
       setError('Error de conexión al servidor');
       console.error('Error de conexión al servidor:', error);
     }

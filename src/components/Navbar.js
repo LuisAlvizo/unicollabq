@@ -1,3 +1,4 @@
+// Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
@@ -28,7 +29,13 @@ const StyledButton = styled(Button)({
   },
 });
 
-const Navbar = () => {
+const Navbar = ({ user, setUser }) => {
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Elimina el token de autenticación
+    localStorage.removeItem('user');  // Elimina los datos del usuario
+    setUser(null); // Limpia el estado del usuario
+  };
+
   return (
     <div>
       <StyledAppBar position="static">
@@ -36,18 +43,21 @@ const Navbar = () => {
           <StyledTypography variant="h6" component={Link} to="/">
             UniCollabQ
           </StyledTypography>
-          <StyledButton component={Link} to="/" color="inherit">
-            Home
-          </StyledButton>
-          <StyledButton component={Link} to="/about" color="inherit">
-            About
-          </StyledButton>
-          <StyledButton component={Link} to="/contact" color="inherit">
-            Contact
-          </StyledButton>
-          <StyledButton component={Link} to="/login" color="inherit">
-            Login
-          </StyledButton>
+          {user ? (
+            <>
+              <StyledTypography variant="body1" color="inherit">
+                {user.Nombre} {user.Apellido}
+              </StyledTypography>
+              <StyledButton color="inherit" onClick={handleLogout} component={Link} to="/">Logout</StyledButton>
+            </>
+          ) : (
+            <>
+              <StyledButton component={Link} to="/" color="inherit">Home</StyledButton>
+              <StyledButton component={Link} to="/about" color="inherit">About</StyledButton>
+              <StyledButton component={Link} to="/contact" color="inherit">Contact</StyledButton>
+              <StyledButton component={Link} to="/login" color="inherit">Login</StyledButton>
+            </>
+          )}
         </Toolbar>
       </StyledAppBar>
     </div>
