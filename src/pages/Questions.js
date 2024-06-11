@@ -24,7 +24,7 @@ const PostsWithComments = ({ user }) => {
         const data = response.data;
 
         if (data.success) {
-          const posts = data.posts;
+          const posts = data.posts.filter(post => post.Estatus === 'Abierta'); // Filtrar solo los posts con estatus "Abierta"
           const totalPages = data.totalPages;
 
           const postsWithComments = await Promise.all(posts.map(async post => {
