@@ -38,12 +38,12 @@ function Login({ setUser }) {
         // Pasar los datos del usuario al Navbar
         switch (data.user.Rol) {
           case 'Estudiante':
-            navigate('/estudiante');
+            navigate('/estudiante/questions');
             break;
           case 'Profesor':
             navigate('/profesor');
             break;
-          case 'Administrativo':
+          case 'Personal':
             navigate('/admin');
             break;
           default:

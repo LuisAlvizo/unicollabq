@@ -1,14 +1,23 @@
-// Por ejemplo, StudentList.js
 import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import VerticalMenu from '../components/VerticalMenu';
+import Questions from './Questions';
+import MyQuestions from './MyQuestions';
+import Profile from './Profile';
 
-function Estudiante() {
-  // Lógica para obtener y mostrar la lista de estudiantes
+const Estudiante = () => {
   return (
-    <div>
-      <h2>Estudiantes</h2>
-      {/* Contenido de la lista de estudiantes */}
+    <div style={{ display: 'flex' }}>
+      <VerticalMenu />
+      <div style={{ flex: 1, padding: '20px' }}>
+        <Routes>
+          <Route path="questions" element={<Questions />} />
+          <Route path="my-questions" element={<MyQuestions />} />
+          <Route path="profile" element={<Profile />} />
+        </Routes>
+      </div>
     </div>
   );
-}
+};
 
 export default Estudiante;

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -9,12 +8,12 @@ import Contact from './pages/Contact';
 import Estudiante from './pages/Estudiante';
 import Profesor from './pages/Profesor';
 import Admin from './pages/Admin';
-
-
+import Questions from './pages/Questions';
+import MyQuestions from './pages/MyQuestions';
+import Profile from './pages/Profile';
 
 function App() {
-
-  const [user, setUser] = useState(null); // Estado del usuario
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -29,11 +28,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login setUser={setUser} />} /> {/* Pasa la función setUser al componente Login */}
+        <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/estudiante" element={<Estudiante />} />
         <Route path="/profesor" element={<Profesor />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/estudiante/*" element={<Estudiante />} />
       </Routes>
     </Router>
   );
