@@ -53,3 +53,123 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.star-filled {
+  color: gold; /* Color de las estrellas llenas */
+}
+
+.star-empty {
+  color: gray; /* Color de las estrellas vacías */
+}
+/* Estilos/PostsWithComments.css */
+
+.post-list {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.post-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.post-header {
+  cursor: pointer;
+}
+
+.rating {
+  display: flex;
+}
+
+.star-filled {
+  color: gold;
+  cursor: pointer;
+}
+
+.star-empty {
+  color: gray;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* PostsWithComments.css */
+
+/* Botones generales */
+.button {
+  padding: 1px 6px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Botón de eliminar */
+.delete-button {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+/* Botón de agregar comentario */
+.add-comment-button {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.add-comment-button:hover {
+  background-color: #218838;
+}
+
+/* Botón de buscar */
+.search-button {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+/* Botones de paginación */
+.pagination-button {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.pagination-button:hover {
+  background-color: #5a6268;
+}
+
+/* Botón de limpiar búsqueda */
+.clear-button {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.clear-button:hover {
+  background-color: #e0a800;
+}
+
+/* Estrellas de calificación */
+.rating .star-filled {
+  color: #ffc107;
+}
+
+.rating .star-empty {
+  color: #e4e5e9;
+}
+
+.rating .star-filled:hover,
+.rating .star-empty:hover {
+  cursor: pointer;
+}

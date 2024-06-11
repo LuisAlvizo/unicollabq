@@ -52,9 +52,6 @@ const Navbar = ({ user, setUser }) => {
             </>
           ) : (
             <>
-              <StyledButton component={Link} to="/" color="inherit">Home</StyledButton>
-              <StyledButton component={Link} to="/about" color="inherit">About</StyledButton>
-              <StyledButton component={Link} to="/contact" color="inherit">Contact</StyledButton>
               <StyledButton component={Link} to="/login" color="inherit">Login</StyledButton>
             </>
           )}

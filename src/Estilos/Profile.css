@@ -1,0 +1,31 @@
+.profile-container {
+    display: flex;
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center; /* Centra el contenido verticalmente */
+    min-height: 100vh; /* Establece la altura mínima de la ventana */
+    background-color: #e6f0ff; /* Fondo azul claro */
+  }
+  
+  .profile-content {
+    margin-left: 20px;
+  }
+  
+  .user-info {
+    background-color: #ffffff; /* Fondo blanco */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-info h2 {
+    margin-bottom: 10px;
+  }
+  
+  .user-info p {
+    margin: 8px 0;
+  }
+  
+  .vertical-menu {
+    /* Estilos minimalistas para el menú vertical, si es necesario */
+  }
+  

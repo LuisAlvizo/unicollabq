@@ -26,12 +26,12 @@ function App() {
     <Router>
       <Navbar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login setUser={setUser} />}/>
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profesor" element={<Profesor />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/profesor/*" element={<Profesor />} />
+        <Route path="/admin/*" element={<Admin />} />
         <Route path="/estudiante/*" element={<Estudiante />} />
       </Routes>
     </Router>

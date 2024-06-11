@@ -41,10 +41,10 @@ function Login({ setUser }) {
             navigate('/estudiante/questions');
             break;
           case 'Profesor':
-            navigate('/profesor');
+            navigate('/profesor/questions');
             break;
           case 'Personal':
-            navigate('/admin');
+            navigate('/admin/questions');
             break;
           default:
             navigate('/');
