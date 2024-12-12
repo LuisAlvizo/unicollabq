@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../Estilos/AddPostForm.css';
+import {
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Alert,
+} from '@mui/material';
 
 const AddPostForm = () => {
   const [titulo, setTitulo] = useState('');
@@ -10,7 +24,7 @@ const AddPostForm = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [userPosts, setUserPosts] = useState([]);
-  const [editingPost, setEditingPost] = useState(null); 
+  const [editingPost, setEditingPost] = useState(null);
 
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -27,7 +41,7 @@ const AddPostForm = () => {
   }, []);
 
   const handleEditPost = (post) => {
-    setEditingPost(post); 
+    setEditingPost(post);
     setTitulo(post.Titulo);
     setDescripcion(post.Descripcion);
     setEstatus(post.Estatus);
@@ -40,11 +54,11 @@ const AddPostForm = () => {
     try {
       await axios.delete(`http://localhost:3030/api/post/${postId}/delete`);
       setSuccessMessage('¡El post se ha eliminado correctamente!');
-      setUserPosts(userPosts.filter(post => post.idPost !== postId)); 
-      setEditingPost(null); 
-      clearForm(); 
+      setUserPosts(userPosts.filter((post) => post.idPost !== postId));
+      setEditingPost(null);
+      clearForm();
     } catch (error) {
-      setError(error.response.data.message);
+      setError('Error al eliminar el post.');
     }
   };
 
@@ -53,31 +67,30 @@ const AddPostForm = () => {
     try {
       const userId = JSON.parse(localStorage.getItem('user')).idUsuario;
 
-      if (editingPost) { 
+      if (editingPost) {
         await axios.put(`http://localhost:3030/api/post/${editingPost.idPost}/update`, {
           Titulo: titulo,
           Descripcion: descripcion,
           Estatus: estatus,
           Categoria: categoria,
-          Usuario_idUsuario: userId
+          Usuario_idUsuario: userId,
         });
         setSuccessMessage('¡El post se ha actualizado correctamente!');
-        setEditingPost(null); 
-        clearForm(); 
-      } else { 
-        const response = await axios.post('http://localhost:3030/api/agregarpost', {
+        setEditingPost(null);
+      } else {
+        await axios.post('http://localhost:3030/api/agregarpost', {
           Titulo: titulo,
           Descripcion: descripcion,
           Estatus: estatus,
           Categoria: categoria,
-          Usuario_idUsuario: userId
+          Usuario_idUsuario: userId,
         });
         setSuccessMessage('¡El post se ha agregado correctamente!');
       }
 
       clearForm();
     } catch (error) {
-      setError(error.response.data.message);
+      setError('Error al enviar el formulario.');
     }
   };
 
@@ -90,49 +103,96 @@ const AddPostForm = () => {
   };
 
   return (
-    <div className="add-post-form-container">
-      <h2>{editingPost ? 'Editar Post' : 'Agregar Nuevo Post'}</h2>
-      {error && <p className="error-message">{error}</p>}
-      {successMessage && <p className="success-message">{successMessage}</p>}
-      <form onSubmit={handleSubmit} className="add-post-form">
-        <div className="form-group">
-          <label>Título:</label>
-          <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Descripción:</label>
-          <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Estatus:</label>
-          <select value={estatus} onChange={(e) => setEstatus(e.target.value)}>
-            <option value="Abierta">Abierta</option>
-            <option value="Cerrada">Cerrada</option>
-            <option value="Privada">Privada</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Categoría:</label>
-          <input type="text" value={categoria} onChange={(e) => setCategoria(e.target.value)} />
-        </div>
-        <button type="submit" className="submit-button">{editingPost ? 'Editar Post' : 'Agregar Post'}</button>
-      </form>
-      <div className="user-posts">
-        <h2>Tus Posts</h2>
-        {userPosts.map(post => (
-          <div key={post.idPost} className="post-card">
-            <h3>{post.Titulo}</h3>
-            <p>{post.Descripcion}</p>
-            <p><strong>Estatus:</strong> {post.Estatus}</p>
-            <p><strong>Categoría:</strong> {post.Categoria}</p>
-            <div className="button-group">
-            <button className="action-button edit-button" onClick={() => handleEditPost(post)}>Editar</button>
-            <button className="action-button delete-button" onClick={() => handleDeletePost(post.idPost)}>Eliminar</button>
-            </div>
-          </div>
+    <Box sx={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+      <Typography variant="h4" gutterBottom>
+        {editingPost ? 'Editar Post' : 'Agregar Nuevo Post'}
+      </Typography>
+      {error && <Alert severity="error">{error}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}
+      >
+        <TextField
+          label="Título"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Descripción"
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          multiline
+          rows={4}
+          fullWidth
+          required
+        />
+        <FormControl fullWidth>
+          <InputLabel id="estatus-label">Estatus</InputLabel>
+          <Select
+            labelId="estatus-label"
+            value={estatus}
+            onChange={(e) => setEstatus(e.target.value)}
+          >
+            <MenuItem value="Abierta">Abierta</MenuItem>
+            <MenuItem value="Cerrada">Cerrada</MenuItem>
+            <MenuItem value="Privada">Privada</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          label="Categoría"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+          fullWidth
+          required
+        />
+        <Button type="submit" variant="contained" color="primary" size="large">
+          {editingPost ? 'Editar Post' : 'Agregar Post'}
+        </Button>
+      </Box>
+      <Typography variant="h5" sx={{ marginTop: '2rem', marginBottom: '1rem' }}>
+        Tus Posts
+      </Typography>
+      <Grid container spacing={2}>
+        {userPosts.map((post) => (
+          <Grid item xs={12} md={6} key={post.idPost}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{post.Titulo}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {post.Descripcion}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Estatus:</strong> {post.Estatus}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Categoría:</strong> {post.Categoria}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => handleEditPost(post)}
+                >
+                  Editar
+                </Button>
+                <Button
+                  size="small"
+                  color="error"
+                  onClick={() => handleDeletePost(post.idPost)}
+                >
+                  Eliminar
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

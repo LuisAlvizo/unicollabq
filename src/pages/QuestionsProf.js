@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../Estilos/PostsWithComments.css';
+import {
+  Box,
+  TextField,
+  IconButton,
+  Button,
+  Typography,
+  Paper,
+  Divider,
+  Stack,
+  Tooltip,
+  Avatar
+} from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteIcon from '@mui/icons-material/Delete';
+import '../Estilos/PostsWithComments.css'; // Puedes mantenerlo para ajustes menores
 
 const PostsWithComments = ({ user }) => {
   const [postsWithComments, setPostsWithComments] = useState([]);
@@ -9,7 +23,7 @@ const PostsWithComments = ({ user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchCategory, setSearchCategory] = useState('');
-  const userId = JSON.parse(localStorage.getItem('user')).idUsuario; // Obtener el idUsuario del localStorage
+  const userId = JSON.parse(localStorage.getItem('user')).idUsuario;
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -24,14 +38,16 @@ const PostsWithComments = ({ user }) => {
         const data = response.data;
 
         if (data.success) {
-          const posts = data.posts.filter(post => post.Estatus === 'Abierta'); // Filtrar solo los posts con estatus "Abierta"
+          const posts = data.posts.filter(post => post.Estatus === 'Abierta');
           const totalPages = data.totalPages;
 
-          const postsWithComments = await Promise.all(posts.map(async post => {
-            const commentsResponse = await axios.get(`http://localhost:3030/api/post/${post.idPost}/comments`);
-            const comments = commentsResponse.data.comments.map(comment => ({ ...comment, rating: comment.Valoracion }));
-            return { ...post, comments };
-          }));
+          const postsWithComments = await Promise.all(
+            posts.map(async post => {
+              const commentsResponse = await axios.get(`http://localhost:3030/api/post/${post.idPost}/comments`);
+              const comments = commentsResponse.data.comments.map(comment => ({ ...comment, rating: comment.Valoracion }));
+              return { ...post, comments };
+            })
+          );
 
           setPostsWithComments(postsWithComments);
           setTotalPages(totalPages);
@@ -46,11 +62,11 @@ const PostsWithComments = ({ user }) => {
     fetchPosts();
   }, [currentPage, searchCategory]);
 
-  const handleExpandPost = postId => {
+  const handleExpandPost = (postId) => {
     setExpandedPostId(postId === expandedPostId ? null : postId);
   };
 
-  const handleNewCommentChange = event => {
+  const handleNewCommentChange = (event) => {
     setNewCommentText(event.target.value);
   };
 
@@ -58,40 +74,30 @@ const PostsWithComments = ({ user }) => {
     try {
       const response = await axios.post(`http://localhost:3030/api/post/${postId}/comment`, {
         texto: newCommentText,
-        Usuario_idUsuario: userId, // Pasar el idUsuario almacenado en localStorage
-        postUsuarioId, // Pasar el id del usuario que hizo el post
-        revisionId: 1 // Pasar el id de la revisión
+        Usuario_idUsuario: userId,
+        postUsuarioId,
+        revisionId: 1
       });
 
       const newComment = response.data.comment;
-      // Actualizar la lista de comentarios para el post actualizado
-      setPostsWithComments(prevPosts => prevPosts.map(post => {
-        if (post.idPost === postId) {
-          return {
-            ...post,
-            comments: [...post.comments, newComment]
-          };
-        }
-        return post;
-      }));
+      setPostsWithComments(prevPosts =>
+        prevPosts.map(post => (post.idPost === postId
+          ? { ...post, comments: [...post.comments, newComment] }
+          : post))
+      );
 
-      // Limpiar el campo de texto
       setNewCommentText('');
     } catch (error) {
-      console.error('Error al enviar comentario:', error.response.data.message);
+      console.error('Error al enviar comentario:', error.response?.data?.message);
     }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   const handleClearSearch = () => {
@@ -100,21 +106,15 @@ const PostsWithComments = ({ user }) => {
 
   const handleRateComment = async (postId, commentId, rating) => {
     try {
-      // Enviar la solicitud al endpoint para actualizar la valoración del comentario
       const response = await axios.post(`http://localhost:3030/api/post/${postId}/comment/${commentId}/rate`, { rating });
 
-      // Verificar si la solicitud fue exitosa
       if (response.data.success) {
-        // Actualizar el estado local de los comentarios con la nueva valoración
         setPostsWithComments(prevPosts =>
           prevPosts.map(post => {
             if (post.idPost === postId) {
-              const updatedComments = post.comments.map(comment => {
-                if (comment.idComentario === commentId) {
-                  return { ...comment, Valoracion: rating };
-                }
-                return comment;
-              });
+              const updatedComments = post.comments.map(comment =>
+                comment.idComentario === commentId ? { ...comment, Valoracion: rating } : comment
+              );
               return { ...post, comments: updatedComments };
             }
             return post;
@@ -132,7 +132,6 @@ const PostsWithComments = ({ user }) => {
     try {
       const response = await axios.delete(`http://localhost:3030/api/post/${postId}/comment/${commentId}`);
       if (response.data.success) {
-        // Eliminar el comentario del estado local
         setPostsWithComments(prevPosts =>
           prevPosts.map(post => {
             if (post.idPost === postId) {
@@ -152,10 +151,8 @@ const PostsWithComments = ({ user }) => {
 
   const handleDeletePost = async (postId) => {
     try {
-      console.log(`Deleting post with ID: ${postId}`); // Log para verificar el ID del post
       const response = await axios.delete(`http://localhost:3030/api/post/${postId}/delete`);
       if (response.data.success) {
-        // Eliminar el post del estado local
         setPostsWithComments(prevPosts =>
           prevPosts.filter(post => post.idPost !== postId)
         );
@@ -167,73 +164,189 @@ const PostsWithComments = ({ user }) => {
     }
   };
 
+  // Función para generar avatar inicial según el nombre del usuario (puedes adaptarla si tienes info del autor del post)
+  const getInitials = (name = '', lastName = '') => {
+    return (name.charAt(0) + lastName.charAt(0)).toUpperCase();
+  };
+
   return (
-    <div className="post-list">
-      <div className="search-bar">
-        <input
-          type="text"
+    <Box sx={{ maxWidth: 900, margin: '0 auto', padding: '2rem', bgcolor: '#f7f7f7', borderRadius: 2 }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>
+        Foro de Publicaciones
+      </Typography>
+
+      <Box
+        sx={{
+          display: 'flex',
+          gap: '1rem',
+          marginBottom: '2rem',
+          alignItems: 'center',
+          bgcolor: '#fff',
+          padding: '1rem',
+          borderRadius: '8px',
+          boxShadow: 1
+        }}
+      >
+        <TextField
+          fullWidth
+          variant="outlined"
+          label="Buscar por categoría"
           value={searchCategory}
           onChange={(e) => setSearchCategory(e.target.value)}
-          placeholder="Buscar por categoría"
+          placeholder="Ej: Tecnología, Educación..."
         />
         {searchCategory && (
-          <button className="button clear-button" onClick={handleClearSearch}>
-            Clear
-          </button>
+          <IconButton onClick={handleClearSearch} color="primary">
+            <ClearIcon />
+          </IconButton>
         )}
-      </div>
-      <h2>POSTS</h2>
+      </Box>
+
       {postsWithComments.map((post) => (
-        <div key={post.idPost} className="post-card">
-          <div className="post-header" onClick={() => handleExpandPost(post.idPost)}>
-            <h3>{post.Titulo}</h3>
-            <p>{post.Descripcion}</p>
-            <p>{post.comments.length} Comments</p> {/* Mostrar el número de comentarios */}
-          </div>
+        <Paper
+          key={post.idPost}
+          sx={{
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            borderRadius: '8px',
+            boxShadow: 3,
+            transition: 'background-color 0.3s',
+            '&:hover': { backgroundColor: '#ffffff' }
+          }}
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+            <Box sx={{ flex: 1, cursor: 'pointer' }} onClick={() => handleExpandPost(post.idPost)}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                {post.Titulo}
+              </Typography>
+              <Typography variant="body1" sx={{ marginBottom: '0.5rem', color: 'text.secondary' }}>
+                {post.Descripcion}
+              </Typography>
+              <Typography variant="body2" sx={{ fontStyle: 'italic', marginBottom: '0.5rem', color: 'text.secondary' }}>
+                {post.comments.length} Comentarios
+              </Typography>
+              {/* Información adicional del post (puedes personalizar si tienes datos del autor del post) */}
+              <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                Publicado por: Usuario {post.Usuario_idUsuario} {/* Ajusta según tus datos */}
+              </Typography>
+            </Box>
+
+            <Tooltip title="Eliminar Post">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeletePost(post.idPost);
+                }}
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+
           {expandedPostId === post.idPost && (
-            <div className="post-comments">
-              <ul className="comments-list">
-                {post.comments.map((comment) => (
-                  <li key={comment.idComentario} className="comment">
-                    <p>{comment.Texto}</p>
-                    <p className="comment-user">By: {comment.NombreUsuario} {comment.ApellidoUsuario}</p>
-                    {/* Mostrar estrellas para valorar el comentario */}
-                    <div className="rating">
-                      {[...Array(5)].map((_, index) => (
-                        <span
-                          key={index}
-                          className={index < comment.Valoracion ? 'star-filled' : 'star-empty'}
-                          onClick={() => handleRateComment(post.idPost, comment.idComentario, index + 1)}
-                        >
-                          {index < comment.Valoracion ? '★' : '☆'}
-                        </span>
-                      ))}
-                    </div>
-                    {/* Botón para eliminar el comentario */}
-                    <button className="button delete-button" onClick={() => handleDeleteComment(post.idPost, comment.idComentario)}>Delete Comment</button>
-                  </li>
-                ))}
+            <Box sx={{ marginTop: '1rem' }} onClick={(e) => e.stopPropagation()}>
+              <Divider sx={{ marginBottom: '1rem' }} />
+              <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0 }}>
+                {post.comments.map((comment) => {
+                  const initials = getInitials(comment.NombreUsuario, comment.ApellidoUsuario);
+                  return (
+                    <li key={comment.idComentario} style={{ marginBottom: '1rem' }}>
+                      <Paper
+                        sx={{
+                          padding: '1rem',
+                          backgroundColor: '#ffffff',
+                          borderRadius: '8px',
+                          boxShadow: 1,
+                          '&:hover': { backgroundColor: '#f9f9f9' }
+                        }}
+                        elevation={1}
+                      >
+                        <Stack direction="row" alignItems="flex-start" spacing={2}>
+                          <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 'bold' }}>
+                            {initials}
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2" sx={{ marginBottom: '0.5rem' }}>
+                              {comment.Texto}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', marginBottom: '0.5rem' }}>
+                              Por: {comment.NombreUsuario} {comment.ApellidoUsuario}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                              {[...Array(5)].map((_, index) => (
+                                <span
+                                  key={index}
+                                  style={{
+                                    cursor: 'pointer',
+                                    color: index < comment.Valoracion ? '#FFD700' : '#ccc',
+                                    marginRight: '2px',
+                                    fontSize: '1.2rem'
+                                  }}
+                                  onClick={() => handleRateComment(post.idPost, comment.idComentario, index + 1)}
+                                >
+                                  {index < comment.Valoracion ? '★' : '☆'}
+                                </span>
+                              ))}
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                              <Tooltip title="Eliminar comentario">
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteComment(post.idPost, comment.idComentario)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </Box>
+                        </Stack>
+                      </Paper>
+                    </li>
+                  );
+                })}
               </ul>
+
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSubmitComment(post.idPost, post.Usuario_idUsuario);
                 }}
               >
-                <textarea value={newCommentText} onChange={handleNewCommentChange} />
-                <button type="submit" className="button add-comment-button">Add Comment</button>
+                <Stack direction="column" spacing={2} sx={{ marginTop: '1rem' }}>
+                  <TextField
+                    multiline
+                    rows={3}
+                    value={newCommentText}
+                    onChange={handleNewCommentChange}
+                    placeholder="Escribe tu comentario..."
+                    variant="outlined"
+                    fullWidth
+                  />
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button type="submit" variant="contained">
+                      Agregar Comentario
+                    </Button>
+                  </Box>
+                </Stack>
               </form>
-            </div>
+            </Box>
           )}
-          {/* Botón para eliminar el post */}
-          <button className="button delete-button" onClick={() => handleDeletePost(post.idPost)}>Delete Post</button>
-        </div>
+        </Paper>
       ))}
-      <div className="pagination">
-        <button className="button pagination-button" onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
-        <button className="button pagination-button" onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
-      </div>
-    </div>
+
+      {totalPages > 1 && (
+        <Box className="pagination" sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+          <Button onClick={handlePrevPage} disabled={currentPage === 1} variant="outlined">
+            Anterior
+          </Button>
+          <Button onClick={handleNextPage} disabled={currentPage === totalPages} variant="outlined">
+            Siguiente
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
 };
 
